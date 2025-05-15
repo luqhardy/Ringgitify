@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYR JPY Live Converter</title>
+    <style>
+        :root {
+            --background-light: #f4f7f6;
+            --text-light: #333;
+            --input-bg-light: #fff;
+            --input-border-light: #ccc;
+            --button-bg-light: #007bff;
+            --button-text-light: #fff;
+            --link-light: #007bff;
+            --fun-fact-bg-light: #e9ecef;
+            --info-text-light: #6c757d;
+
+            --background-dark: #2c3e50;
+            --text-dark: #ecf0f1;
+            --input-bg-dark: #34495e;
+            --input-border-dark: #566573;
+            --button-bg-dark: #3498db;
+            --button-text-dark: #fff;
+            --link-dark: #3498db;
+            --fun-fact-bg-dark: #34495e;
+            --info-text-dark: #adb5bd;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: var(--background-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        .container {
+            background-color: var(--input-bg-light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        body.dark-mode .container {
+            background-color: var(--input-bg-dark);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            color: var(--text-light);
+        }
+        body.dark-mode h1 {
+            color: var(--text-dark);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group label {
+            flex-basis: 60px; /* Increased slightly for JPY */
+            text-align: left;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .input-group input[type="number"] {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--input-border-light);
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: var(--input-bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        body.dark-mode .input-group input[type="number"] {
+            background-color: var(--input-bg-dark);
+            color: var(--text-dark);
+            border-color: var(--input-border-dark);
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        .swap-button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .swap-button {
+            padding: 10px 15px;
+            background-color: var(--button-bg-light);
+            color: var(--button-text-light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        body.dark-mode .swap-button {
+            background-color: var(--button-bg-dark);
+            color: var(--button-text-dark);
+        }
+        .swap-button:hover {
+            opacity: 0.9;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .fun-fact, .rate-info {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: var(--fun-fact-bg-light);
+            border-radius: 8px;
+            font-size: 0.90em;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode .fun-fact, body.dark-mode .rate-info {
+            background-color: var(--fun-fact-bg-dark);
+            color: var(--text-dark);
+        }
+        .rate-info {
+            font-size: 0.8em;
+            color: var(--info-text-light);
+        }
+        body.dark-mode .rate-info {
+            color: var(--info-text-dark);
+        }
+        .loading-text {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle" id="modeToggle">🌙</div>
+
+    <div class="container">
+        <h1>Currency Converter</h1>
+        <div class="input-group">
+            <label for="amount1" id="label1">MYR</label>
+            <input type="number" id="amount1" placeholder="Enter amount">
+        </div>
+        <div class="swap-button-container">
+            <button class="swap-button" id="swapButton" title="Swap Currencies">&#x21C5;</button>
+        </div>
+        <div class="input-group">
+            <label for="amount2" id="label2">JPY</label>
+            <input type="number" id="amount2" placeholder="Enter amount">
+        </div>
+    </div>
+
+    <div class="rate-info" id="rateInfo">
+        Fetching live rates...
+    </div>
+
+    <div class="fun-fact" id="funFact">
+        <span class="loading-text">Loading fun fact...</span>
+    </div>
+
+    <script>
+        const amount1Input = document.getElementById('amount1');
+        const amount2Input = document.getElementById('amount2');
+        const label1Elem = document.getElementById('label1');
+        const label2Elem = document.getElementById('label2');
+        const swapButton = document.getElementById('swapButton');
+        const modeToggle = document.getElementById('modeToggle');
+        const funFactDiv = document.getElementById('funFact');
+        const rateInfoDiv = document.getElementById('rateInfo');
+
+        // --- IMPORTANT: REPLACE WITH YOUR API KEY ---
+        const API_KEY = "52f3b03b531ad6a20b6aac1a";
+        // --- --- --- --- --- --- --- --- --- --- ---
+
+        let JPY_TO_MYR_RATE = 0.029; // Default fallback
+        let MYR_TO_JPY_RATE = 34.0;  // Default fallback
+
+        let currency1 = 'MYR';
+        let currency2 = 'JPY';
+        let activeInput = amount1Input; // Determines which input drives conversion
+
+        async function fetchExchangeRates() {
+            rateInfoDiv.textContent = 'Fetching live rates...';
+            if (API_KEY === "YOUR_API_KEY") {
+                rateInfoDiv.innerHTML = `<strong>Error:</strong> Please set your API key in the script. Using fallback rates.`;
+                console.error("API Key not set. Using fallback rates.");
+                updateFunFact(); // Use fallback for fun fact
+                return;
+            }
+
+            const baseCurrency = 'MYR'; // Fetch rates relative to MYR
+            const url = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${baseCurrency}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${errorData['error-type'] || response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.result === "success" && data.conversion_rates && data.conversion_rates.JPY) {
+                    MYR_TO_JPY_RATE = data.conversion_rates.JPY;
+                    JPY_TO_MYR_RATE = 1 / MYR_TO_JPY_RATE; // Calculate inverse
+
+                    rateInfoDiv.textContent = `Live Rates: 1 MYR = ${MYR_TO_JPY_RATE.toFixed(4)} JPY | 1 JPY = ${JPY_TO_MYR_RATE.toFixed(4)} MYR`;
+                    console.log("Rates updated:", { MYR_TO_JPY_RATE, JPY_TO_MYR_RATE });
+                    updateFunFact(); // Update fun fact with live rates
+                    convert(); // Recalculate if there's any input
+                } else {
+                    throw new Error("Invalid API response structure or JPY rate not found.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch exchange rates:", error);
+                rateInfoDiv.innerHTML = `<strong>Error fetching rates:</strong> ${error.message}. Using fallback rates.`;
+                // Fallback rates are already set, so fun fact and conversion will use them.
+                updateFunFact();
+            }
+        }
+
+        function convert() {
+            const val1 = parseFloat(amount1Input.value);
+            const val2 = parseFloat(amount2Input.value);
+
+            if (activeInput === amount1Input) {
+                if (!isNaN(val1)) {
+                    if (currency1 === 'MYR') {
+                        amount2Input.value = (val1 * MYR_TO_JPY_RATE).toFixed(2);
+                    } else { // currency1 is JPY
+                        amount2Input.value = (val1 * JPY_TO_MYR_RATE).toFixed(2);
+                    }
+                } else {
+                    amount2Input.value = '';
+                }
+            } else { // activeInput is amount2Input
+                if (!isNaN(val2)) {
+                    if (currency2 === 'MYR') { // target is MYR
+                        amount1Input.value = (val2 * JPY_TO_MYR_RATE).toFixed(2);
+                    } else { // currency2 is JPY, target is JPY
+                        amount1Input.value = (val2 * MYR_TO_JPY_RATE).toFixed(2);
+                    }
+                } else {
+                    amount1Input.value = '';
+                }
+            }
+        }
+
+
+        amount1Input.addEventListener('input', () => {
+            activeInput = amount1Input;
+            convert();
+        });
+        amount2Input.addEventListener('input', () => {
+            activeInput = amount2Input;
+            convert();
+        });
+
+        amount1Input.addEventListener('focus', () => {
+            activeInput = amount1Input;
+        });
+        amount2Input.addEventListener('focus', () => {
+            activeInput = amount2Input;
+        });
+
+        swapButton.addEventListener('click', () => {
+            // Swap currency variables
+            [currency1, currency2] = [currency2, currency1];
+
+            // Swap labels
+            label1Elem.textContent = currency1;
+            label2Elem.textContent = currency2;
+
+            // Swap input values
+            [amount1Input.value, amount2Input.value] = [amount2Input.value, amount1Input.value];
+
+            // Swap placeholders
+            const tempPlaceholder = amount1Input.placeholder;
+            amount1Input.placeholder = amount2Input.placeholder;
+            amount2Input.placeholder = tempPlaceholder;
+
+            // Re-focus on the (new) first input and convert
+            // or determine active input based on which field was last focused/typed in
+            // For simplicity, let's assume the user might want to type in the first field now.
+            activeInput = amount1Input;
+            amount1Input.focus();
+            convert();
+        });
+
+        modeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            modeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        });
+
+        function updateFunFact() {
+            const mangaPriceJPY = 600;
+            if (JPY_TO_MYR_RATE) { // Check if rate is available
+                const mangaPriceMYR = (mangaPriceJPY * JPY_TO_MYR_RATE).toFixed(2);
+                const mangaNames = ["Sasaki and Miyano", "Kimi Ni Wa Todokanai"];
+                const randomManga = mangaNames[Math.floor(Math.random() * mangaNames.length)];
+                funFactDiv.textContent = `Did you know? A copy of ${randomManga} currently costs approx. ${mangaPriceMYR} MYR!`;
+            } else {
+                funFactDiv.innerHTML = `<span class="loading-text">Fun fact unavailable (waiting for rates...).</span>`;
+            }
+        }
+
+        // Initial setup
+        fetchExchangeRates(); // Fetch rates on page load
+        amount1Input.focus();
+    </script>
+</body>
+</html>
